@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Election Process Assistant</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    perspective: 1000px;
+}
+h1 {
+    text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff, 0 0 40px #3a7bd5;
+    margin-top: 40px;
+    font-size: 3em;
+    animation: pulse 2s infinite alternate;
+}
+@keyframes pulse {
+    0% { text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff; }
+    100% { text-shadow: 0 0 20px #00d2ff, 0 0 40px #00d2ff, 0 0 60px #3a7bd5; }
+}
+.assistant-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #00d2ff;
+    border-radius: 15px;
+    padding: 30px;
+    width: 80%;
+    max-width: 800px;
+    box-shadow: 0 0 15px #00d2ff, inset 0 0 15px #00d2ff;
+    transform: rotateX(5deg);
+    transition: transform 0.3s;
+    margin-bottom: 40px;
+}
+.assistant-container:hover {
+    transform: rotateX(0deg);
+}
+.chat-box {
+    height: 300px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 70%;
+}
+.bot-msg {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    border: 1px solid #00d2ff;
+    box-shadow: 0 0 10px #00d2ff;
+    align-self: flex-start;
+}
+.user-msg {
+    background: linear-gradient(135deg, #e94057, #f27121);
+    box-shadow: 0 0 10px #e94057;
+    align-self: flex-end;
+    margin-left: auto;
+}
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+input[type="text"] {
+    flex: 1;
+    padding: 15px;
+    border-radius: 30px;
+    border: 1px solid #00d2ff;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1em;
+}
+button {
+    padding: 10px 25px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px #3a7bd5;
+    transition: all 0.3s;
+}
+button:hover {
+    box-shadow: 0 0 25px #00d2ff;
+    transform: scale(1.05);
+}
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    max-width: 800px;
+    margin-top: 20px;
+}
+.step {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #e94057;
+    border-radius: 10px;
+    background: rgba(233, 64, 87, 0.1);
+    box-shadow: 0 0 10px #e94057;
+    width: 18%;
+    font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+
+<h1>Election Assistant</h1>
+
+<div class="assistant-container">
+    <div class="chat-box" id="chatBox">
+        <div class="message bot-msg">Hello! I am your Election Process Assistant. Ask me about registration, nomination, campaigning, polling, counting, or timelines.</div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Ask about the election process..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<div class="timeline">
+    <div class="step">1. Registration</div>
+    <div class="step">2. Nomination</div>
+    <div class="step">3. Campaigning</div>
+    <div class="step">4. Polling</div>
+    <div class="step">5. Counting</div>
+</div>
+
+<script>
+const responses = {
+    "registration": "Voter registration is the first step. You must be 18 years old and enroll via the National Voters' Service Portal.",
+    "nomination": "Candidates file their nomination papers, which are then scrutinized. They have a window to withdraw their candidatures.",
+    "campaign": "Campaigning ends 48 hours before the polling day. It includes rallies, manifestos, and public meetings.",
+    "poll": "On polling day, registered voters cast their votes using Electronic Voting Machines (EVMs) at designated booths.",
+    "count": "Votes are counted under strict security. The candidate with the highest votes in a constituency is declared the winner.",
+    "timeline": "The entire process takes about 2-3 months from the announcement of dates by the Election Commission to the declaration of results.",
+    "default": "I can assist with registration, nomination, campaigns, polling, counting, or the general timeline. Please specify what you'd like to know."
+};
+
+function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim().toLowerCase();
+    if (message === "") return;
+
+    appendMessage(input.value, "user-msg");
+    input.value = "";
+
+    setTimeout(() => {
+        let reply = responses["default"];
+        for (const key in responses) {
+            if (message.includes(key)) {
+                reply = responses[key];
+                break;
+            }
+        }
+        appendMessage(reply, "bot-msg");
+    }, 500);
+}
+
+function appendMessage(text, className) {
+    const chatBox = document.getElementById("chatBox");
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${className}`;
+    msgDiv.innerText = text;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+}
+</script>
+</body>
+</html>
